@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maschera Sonora</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #9d9d9c; }
+#container {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%; position: relative;
+}
+#container svg { width: 100%; height: 100%; max-height: 100vh; }
+#micButton {
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+  padding: 16px 40px; font-size: 18px; font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: #1d1d1b; color: #fff; border: none; border-radius: 8px;
+  cursor: pointer; letter-spacing: 0.5px; transition: opacity 0.3s, transform 0.2s;
+  z-index: 10;
+}
+#micButton:hover { opacity: 0.85; transform: translateX(-50%) scale(1.03); }
+#micButton:active { transform: translateX(-50%) scale(0.97); }
+#micButton:disabled { opacity: 0.3; cursor: not-allowed; }
+#status {
+  position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%);
+  font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 14px;
+  color: #1d1d1b; opacity: 0; transition: opacity 0.4s; z-index: 10;
+  text-align: center; background: rgba(255,255,255,0.6); padding: 8px 16px;
+  border-radius: 6px;
+}
+#status.visible { opacity: 1; }
+.back-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 9999;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 22px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+.back-btn:hover {
+  background: rgba(255,255,255,0.25);
+  transform: scale(1.12);
+}
+</style>
+</head>
+<body>
+<div id="container">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 595.28 841.89">
+    <defs>
+      <style>
+        .st0 { fill: #1d1d1b; }
+        .st1 { fill: url(#grad2); }
+        .st1, .st2, .st3, .st4 { stroke: #1d1d1b; stroke-miterlimit: 10; }
+        .st2 { fill: url(#grad1); }
+        .st3 { fill: #9d9d9c; }
+        .st4 { fill: #828181; }
+      </style>
+      <radialGradient id="grad1" cx="444.83" cy="272.12" r="120.99" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#fff"/>
+        <stop offset="0" stop-color="#fbfbfb"/>
+        <stop offset=".04" stop-color="#cdcdcc"/>
+        <stop offset=".08" stop-color="#a3a3a3"/>
+        <stop offset=".12" stop-color="#7f7f7e"/>
+        <stop offset=".16" stop-color="#60605f"/>
+        <stop offset=".21" stop-color="#474746"/>
+        <stop offset=".26" stop-color="#343432"/>
+        <stop offset=".32" stop-color="#272725"/>
+        <stop offset=".4" stop-color="#1f1f1d"/>
+        <stop offset=".54" stop-color="#1d1d1b"/>
+      </radialGradient>
+      <radialGradient id="grad2" cx="572.75" cy="269.22" r="121.29" gradientTransform="translate(714.99) rotate(-180) scale(1 -1)" xlink:href="#grad1"/>
+    </defs>
+    <g id="sfondo">
+      <rect class="st3" x="-.02" y="-.9" width="596.84" height="846.68"/>
+    </g>
+    <g id="occhi">
+      <path id="eyeLeft" class="st2" d="M326.4,393.87s-9.5-203.39,233.8-245.21c-3.63,25.07-17.76,99.89-81.91,164.41-58.96,59.3-126.3,75.85-151.9,80.8Z"/>
+      <path id="eyeRight" class="st1" d="M261.09,390.8s9.5-203.39-233.8-245.21c3.33,24.57,17.12,102.88,84.54,168.47,58.05,56.47,123.5,72.02,149.27,76.74Z"/>
+      <path id="eyeline1" class="st0" d="M304.5,337.37s-.05,0-.07,0c-.55-.04-.96-.52-.92-1.07.03-.39,2.98-39.05,16.76-83.33,12.74-40.93,37.6-95.18,83.72-121.17.48-.27,1.09-.1,1.36.38.27.48.1,1.09-.38,1.36-25.13,14.16-59.9,46.47-82.78,119.98-13.72,44.06-16.66,82.53-16.68,82.92-.04.53-.48.93-1,.93Z"/>
+      <path id="eyeline2" class="st0" d="M291.66,357.54s-.07,0-.11,0c-.55-.06-.95-.55-.89-1.1,3.08-28.68-3.02-75.75-49.56-137.08-27.89-36.76-57.5-61.5-57.8-61.75-.42-.35-.48-.98-.13-1.41.35-.42.98-.48,1.41-.13.3.25,30.06,25.11,58.09,62.05,25.92,34.15,55.63,85.9,49.98,138.54-.05.51-.49.89-.99.89Z"/>
+      <path id="eyeline3" class="st0" d="M375.43,404.03c-.47,0-.89-.33-.98-.82-.1-.54.25-1.07.8-1.17,30.04-5.64,71.43-17.4,97.98-41.4,15.84-14.31,18.9-26.37,18.92-26.49.13-.54.67-.87,1.21-.74.54.13.87.67.74,1.2-.12.51-3.16,12.65-19.37,27.36-26.89,24.41-68.74,36.33-99.12,42.03-.06.01-.12.02-.19.02Z"/>
+      <path id="eyeline4" class="st0" d="M223.29,411.8c-27.42,0-59.23-3.61-84.19-16.77-19.36-10.21-25.33-21.21-25.57-21.68-.26-.49-.07-1.09.42-1.35.49-.26,1.09-.07,1.35.41.06.11,6.02,11.02,24.92,20.94,31.7,16.63,74.71,17.71,105.21,15.69.56-.04,1.03.38,1.06.93.04.55-.38,1.03-.93,1.06-6.88.46-14.4.75-22.27.75Z"/>
+      <path id="eyelid1" class="st4" d="M326.4,393.87s-7.44-208.5,233.8-245.21l-233.8,245.21Z"/>
+      <path id="eyelid2" class="st4" d="M260.95,389.4s7.44-208.5-233.8-245.21l233.8,245.21Z"/>
+    </g>
+    <g id="bocca">
+      <path id="mouth" class="st0" d="M232,692.35s68.26-82.35,116.97-30.11c3.61,3.87,5.31,10.43,4.02,16.73-1.14,5.61-4.48,9.56-13.43,1.59-17.18-15.3-55.72-30.49-107.57,11.78Z"/>
+    </g>
+    <g id="naso">
+      <path id="nose1" class="st0" d="M285.12,484.15s-42.06,56.13-24.03,45.22c18.03-10.92,24.03-45.22,24.03-45.22Z"/>
+      <path id="nose2" class="st0" d="M299.72,484.55s42.06,56.13,24.03,45.22c-18.03-10.92-24.03-45.22-24.03-45.22Z"/>
+    </g>
+  </svg>
+
+  <button id="micButton">🎤 Attiva microfono</button>
+  <div id="status"></div>
+</div>
+
+<svg id="pathSampler" style="position:absolute;left:-9999px;top:-9999px;visibility:hidden;" aria-hidden="true">
+  <path id="closedMouthPath" d="M232,692.35s68.26-82.35,116.97-30.11c3.61,3.87,5.31,10.43,4.02,16.73-1.14,5.61-4.48,9.56-13.43,1.59-17.18-15.3-55.72-30.49-107.57,11.78Z"/>
+  <path id="openMouthPath" d="M235,689.92c-9.91-4.77-18.67-8.99-24.9-18.2-14.53-21.5-6-56.46,9.84-75.44,31.51-37.75,113.3-37.82,150.87,6.56,32.84,38.79,26.93,105.67,3.28,118.07-14.89,7.81-24.23-12.58-73.15-19.08-25.61-3.4-41.79-.3-65.93-11.92Z"/>
+  <path id="closedEyelid1Path" d="M326.4,393.87s-7.44-208.5,233.8-245.21l-233.8,245.21Z"/>
+  <path id="closedEyelid2Path" d="M260.95,389.4s7.44-208.5-233.8-245.21l233.8,245.21Z"/>
+  <path id="openEyelid1Path" d="M326.68,394.28s-7.44-208.5,233.8-245.21c-28.89,8.13-95.64,31.12-153.94,94.1-54.42,58.8-73.11,121.81-79.87,151.11Z"/>
+  <path id="openEyelid2Path" d="M261.22,389.8s7.44-208.5-233.8-245.21c29.92,9.38,93,33.55,149.69,93.56,55.44,58.67,76.19,121.36,84.12,151.65Z"/>
+  <path id="closedEyeLeftPath" d="M326.4,393.87s-9.5-203.39,233.8-245.21c-3.63,25.07-17.76,99.89-81.91,164.41-58.96,59.3-126.3,75.85-151.9,80.8Z"/>
+  <path id="openEyeLeftPath" d="M326.4,393.87s-9.5-203.39,233.8-245.21c1.71,8.64,19.68,108.9-54.93,185.24-72.39,74.07-169.19,61.41-178.88,59.97Z"/>
+  <path id="closedEyeRightPath" d="M261.09,390.8s9.5-203.39-233.8-245.21c3.33,24.57,17.12,102.88,84.54,168.47,58.05,56.47,123.5,72.02,149.27,76.74Z"/>
+  <path id="openEyeRightPath" d="M261.09,390.8s9.5-203.39-233.8-245.21c-1.99,9.08-21.31,105.4,48.34,181.74,73.44,80.5,178.19,64.69,185.47,63.46Z"/>
+  <path id="closedEyeline1Path" d="M304.5,337.37s-.05,0-.07,0c-.55-.04-.96-.52-.92-1.07.03-.39,2.98-39.05,16.76-83.33,12.74-40.93,37.6-95.18,83.72-121.17.48-.27,1.09-.1,1.36.38.27.48.1,1.09-.38,1.36-25.13,14.16-59.9,46.47-82.78,119.98-13.72,44.06-16.66,82.53-16.68,82.92-.04.53-.48.93-1,.93Z"/>
+  <path id="openEyeline1Path" d="M305.6,345.18s-.05,0-.07,0c-.55-.04-.96-.52-.92-1.07.03-.39,2.98-39.05,16.76-83.33,12.74-40.93,37.6-95.18,83.72-121.16.48-.27,1.09-.1,1.36.38.27.48.1,1.09-.38,1.36-25.13,14.16-59.9,46.47-82.78,119.98-13.72,44.06-16.66,82.53-16.68,82.92-.04.53-.48.93-1,.93Z"/>
+  <path id="closedEyeline2Path" d="M291.66,357.54s-.07,0-.11,0c-.55-.06-.95-.55-.89-1.1,3.08-28.68-3.02-75.75-49.56-137.08-27.89-36.76-57.5-61.5-57.8-61.75-.42-.35-.48-.98-.13-1.41.35-.42.98-.48,1.41-.13.3.25,30.06,25.11,58.09,62.05,25.92,34.15,55.63,85.9,49.98,138.54-.05.51-.49.89-.99.89Z"/>
+  <path id="openEyeline2Path" d="M285.47,361.3s-.07,0-.11,0c-.55-.06-.95-.55-.89-1.1,3.08-28.68-3.02-75.75-49.56-137.08-27.89-36.76-57.5-61.5-57.8-61.75-.42-.35-.48-.98-.13-1.41.35-.42.98-.48,1.41-.13.3.25,30.06,25.11,58.09,62.05,25.92,34.15,55.63,85.9,49.98,138.54-.05.51-.49.89-.99.89Z"/>
+  <path id="closedEyeline3Path" d="M375.43,404.03c-.47,0-.89-.33-.98-.82-.1-.54.25-1.07.8-1.17,30.04-5.64,71.43-17.4,97.98-41.4,15.84-14.31,18.9-26.37,18.92-26.49.13-.54.67-.87,1.21-.74.54.13.87.67.74,1.2-.12.51-3.16,12.65-19.37,27.36-26.89,24.41-68.74,36.33-99.12,42.03-.06.01-.12.02-.19.02Z"/>
+  <path id="openEyeline3Path" d="M410.02,405.89c-.47,0-.89-.33-.98-.82-.1-.54.25-1.07.8-1.17,30.04-5.64,71.43-17.4,97.98-41.4,15.84-14.31,18.9-26.37,18.92-26.49.13-.54.67-.87,1.21-.74.54.13.87.67.74,1.2-.12.51-3.16,12.65-19.37,27.36-26.89,24.41-68.74,36.33-99.12,42.03-.06.01-.12.02-.19.02Z"/>
+  <path id="closedEyeline4Path" d="M223.29,411.8c-27.42,0-59.23-3.61-84.19-16.77-19.36-10.21-25.33-21.21-25.57-21.68-.26-.49-.07-1.09.42-1.35.49-.26,1.09-.07,1.35.41.06.11,6.02,11.02,24.92,20.94,31.7,16.63,74.71,17.71,105.21,15.69.56-.04,1.03.38,1.06.93.04.55-.38,1.03-.93,1.06-6.88.46-14.4.75-22.27.75Z"/>
+  <path id="openEyeline4Path" d="M195.65,411.16c-27.42,0-59.23-3.61-84.19-16.77-19.36-10.21-25.33-21.21-25.57-21.68-.26-.49-.07-1.09.42-1.35.49-.26,1.09-.07,1.35.41.06.11,6.02,11.02,24.92,20.94,31.7,16.63,74.71,17.71,105.21,15.69.56-.04,1.03.38,1.06.93.04.55-.38,1.03-.93,1.06-6.88.46-14.4.75-22.27.75Z"/>
+  <path id="closedNose1Path" d="M285.12,484.15s-42.06,56.13-24.03,45.22c18.03-10.92,24.03-45.22,24.03-45.22Z"/>
+  <path id="openNose1Path" d="M285.12,484.15c-26.76,34.47-30.36,44.24-28.17,46.41,2.22,2.2,10.93-2.96,15.69-7.01,16.47-13.99,12.8-37.54,12.48-39.4Z"/>
+  <path id="closedNose2Path" d="M299.72,484.55s42.06,56.13,24.03,45.22c-18.03-10.92-24.03-45.22-24.03-45.22Z"/>
+  <path id="openNose2Path" d="M299.72,484.55c18.65,21.43,32.7,40.74,28.17,46.41-2.44,3.05-9.56,1.27-13.28-.4-12.3-5.52-18.96-23.95-14.9-46.01Z"/>
+</svg>
+
+<script>
+const SAMPLE_POINTS = 40
+const VIBRATION_SCALE = 6
+
+let audioCtx = null
+let analyser = null
+let source = null
+let stream = null
+let animating = false
+let noisePhase = 0
+let talkPhase = 0
+let lowSmoothed = 0, midSmoothed = 0, highSmoothed = 0, totalSmoothed = 0
+let mouthOpenness = 0, linearOpenness = 0
+
+const mouthEl = document.getElementById('mouth')
+const eyelid1El = document.getElementById('eyelid1')
+const eyelid2El = document.getElementById('eyelid2')
+const eyeLeftEl = document.getElementById('eyeLeft')
+const eyeRightEl = document.getElementById('eyeRight')
+const eyelineEls = [
+  document.getElementById('eyeline1'),
+  document.getElementById('eyeline2'),
+  document.getElementById('eyeline3'),
+  document.getElementById('eyeline4')
+]
+const noseEls = [
+  document.getElementById('nose1'),
+  document.getElementById('nose2')
+]
+const micButton = document.getElementById('micButton')
+const statusEl = document.getElementById('status')
+const closedPathEl = document.getElementById('closedMouthPath')
+const openPathEl = document.getElementById('openMouthPath')
+
+let cachedClosedPts = []
+let cachedOpenPts = []
+let cachedClosedEyelid = [[], []]
+let cachedOpenEyelid = [[], []]
+let cachedClosedEyes = [[], []]
+let cachedOpenEyes = [[], []]
+let cachedClosedEyelines = [[], [], [], []]
+let cachedOpenEyelines = [[], [], [], []]
+let cachedClosedNose = [[], []]
+let cachedOpenNose = [[], []]
+
+function samplePath(pathEl, n) {
+  const len = pathEl.getTotalLength()
+  const pts = []
+  for (let i = 0; i < n; i++) {
+    const pt = pathEl.getPointAtLength((i / (n - 1)) * len)
+    pts.push({ x: pt.x, y: pt.y })
+  }
+  return pts
+}
+
+function interpolatePoints(closed, open, t) {
+  return closed.map((p, i) => ({
+    x: p.x + (open[i].x - p.x) * t,
+    y: p.y + (open[i].y - p.y) * t
+  }))
+}
+
+function addVibrations(pts, intensity, jitter, phase) {
+  const scale = intensity * VIBRATION_SCALE
+  return pts.map((p, i) => {
+    const angle = phase + i * 0.5 + jitter * i * 0.1
+    const dx = Math.sin(angle) * scale + (Math.random() - 0.5) * jitter * 2
+    const dy = Math.cos(angle * 1.3) * scale + (Math.random() - 0.5) * jitter * 2
+    return { x: p.x + dx, y: p.y + dy }
+  })
+}
+
+function pointsToPath(pts) {
+  const n = pts.length
+  let d = `M${pts[0].x},${pts[0].y}`
+  for (let i = 0; i < n; i++) {
+    const p0 = pts[(i - 1 + n) % n]
+    const p1 = pts[i]
+    const p2 = pts[(i + 1) % n]
+    const p3 = pts[(i + 2) % n]
+    const cp1x = p1.x + (p2.x - p0.x) / 6
+    const cp1y = p1.y + (p2.y - p0.y) / 6
+    const cp2x = p2.x - (p3.x - p1.x) / 6
+    const cp2y = p2.y - (p3.y - p1.y) / 6
+    d += `C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`
+  }
+  d += 'Z'
+  return d
+}
+
+function showStatus(msg, isError) {
+  statusEl.textContent = msg
+  statusEl.className = 'visible'
+  if (isError) statusEl.style.color = '#c00'
+  else statusEl.style.color = '#1d1d1b'
+}
+
+function hideStatus() {
+  statusEl.className = ''
+  statusEl.textContent = ''
+}
+
+function initPaths() {
+  cachedClosedPts = samplePath(closedPathEl, SAMPLE_POINTS)
+  cachedOpenPts = samplePath(openPathEl, SAMPLE_POINTS)
+
+  const eyelidIds = ['Eyelid1', 'Eyelid2']
+  cachedClosedEyelid = eyelidIds.map(id => samplePath(document.getElementById('closed' + id + 'Path'), SAMPLE_POINTS))
+  cachedOpenEyelid = eyelidIds.map(id => samplePath(document.getElementById('open' + id + 'Path'), SAMPLE_POINTS))
+
+  const eyeIds = ['EyeLeft', 'EyeRight']
+  cachedClosedEyes = eyeIds.map(id => samplePath(document.getElementById('closed' + id + 'Path'), SAMPLE_POINTS))
+  cachedOpenEyes = eyeIds.map(id => samplePath(document.getElementById('open' + id + 'Path'), SAMPLE_POINTS))
+
+  const lineIds = ['Eyeline1', 'Eyeline2', 'Eyeline3', 'Eyeline4']
+  cachedClosedEyelines = lineIds.map(id => samplePath(document.getElementById('closed' + id + 'Path'), SAMPLE_POINTS))
+  cachedOpenEyelines = lineIds.map(id => samplePath(document.getElementById('open' + id + 'Path'), SAMPLE_POINTS))
+
+  const noseIds = ['Nose1', 'Nose2']
+  cachedClosedNose = noseIds.map(id => samplePath(document.getElementById('closed' + id + 'Path'), SAMPLE_POINTS))
+  cachedOpenNose = noseIds.map(id => samplePath(document.getElementById('open' + id + 'Path'), SAMPLE_POINTS))
+}
+
+async function setupAudio() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+    analyser = audioCtx.createAnalyser()
+    analyser.fftSize = 256
+    source = audioCtx.createMediaStreamSource(stream)
+    source.connect(analyser)
+    micButton.textContent = '🎤 Microfono attivo'
+    micButton.disabled = true
+    hideStatus()
+    if (!animating) {
+      animating = true
+      animate()
+    }
+  } catch (err) {
+    showStatus('Impossibile accedere al microfono. Controlla le autorizzazioni e riprova.', true)
+    micButton.textContent = '🎤 Riprova'
+    micButton.disabled = false
+    console.error('Mic error:', err)
+  }
+}
+
+function animate() {
+  if (!analyser) {
+    requestAnimationFrame(animate)
+    return
+  }
+
+  const data = new Uint8Array(analyser.frequencyBinCount)
+  analyser.getByteFrequencyData(data)
+
+  const n = data.length
+  let lowSum = 0, midSum = 0, highSum = 0, totalSum = 0
+  const lowEnd = Math.floor(n * 0.15)
+  const midEnd = Math.floor(n * 0.5)
+  for (let i = 0; i < n; i++) {
+    totalSum += data[i]
+    if (i < lowEnd) lowSum += data[i]
+    else if (i < midEnd) midSum += data[i]
+    else highSum += data[i]
+  }
+  const low = lowSum / lowEnd / 255
+  const mid = midSum / (midEnd - lowEnd) / 255
+  const high = highSum / (n - midEnd) / 255
+  const total = totalSum / n / 255
+
+  lowSmoothed += (low - lowSmoothed) * 0.35
+  midSmoothed += (mid - midSmoothed) * 0.45
+  highSmoothed += (high - highSmoothed) * 0.55
+  totalSmoothed += (total - totalSmoothed) * 0.4
+
+  const active = lowSmoothed > 0.03 || midSmoothed > 0.04
+
+  // Mouth: driven by low + mid, asymmetric attack/decay
+  const rawMouth = Math.min(1, lowSmoothed * 2.5 + midSmoothed * 1.2)
+  if (rawMouth > mouthOpenness) {
+    mouthOpenness += (rawMouth - mouthOpenness) * 0.7
+  } else {
+    mouthOpenness += (rawMouth - mouthOpenness) * 0.25
+  }
+
+  // Speech oscillation on mouth only
+  if (active) {
+    talkPhase += 0.04 + midSmoothed * 0.08
+    const wobble = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(talkPhase))
+    mouthOpenness *= wobble
+  } else {
+    talkPhase *= 0.95
+  }
+
+  // Other features: linear interpolation from total volume
+  linearOpenness += (Math.min(1, totalSmoothed * 2.5) - linearOpenness) * 0.35
+
+  noisePhase += 0.3 + midSmoothed * 0.5
+
+  const features = [
+    { pts: interpolatePoints(cachedClosedPts, cachedOpenPts, mouthOpenness), el: mouthEl, vib: 1 },
+    { pts: interpolatePoints(cachedClosedEyelid[0], cachedOpenEyelid[0], linearOpenness), el: eyelid1El, vib: 0 },
+    { pts: interpolatePoints(cachedClosedEyelid[1], cachedOpenEyelid[1], linearOpenness), el: eyelid2El, vib: 0 },
+    { pts: interpolatePoints(cachedClosedEyes[0], cachedOpenEyes[0], linearOpenness), el: eyeLeftEl, vib: 0 },
+    { pts: interpolatePoints(cachedClosedEyes[1], cachedOpenEyes[1], linearOpenness), el: eyeRightEl, vib: 0 },
+  ]
+
+  for (let i = 0; i < 4; i++) {
+    features.push({ pts: interpolatePoints(cachedClosedEyelines[i], cachedOpenEyelines[i], linearOpenness), el: eyelineEls[i], vib: 0 })
+  }
+  for (let i = 0; i < 2; i++) {
+    features.push({ pts: interpolatePoints(cachedClosedNose[i], cachedOpenNose[i], linearOpenness), el: noseEls[i], vib: 0 })
+  }
+
+  for (const f of features) {
+    let pts = f.pts
+    if (f.vib > 0 && mouthOpenness > 0.01) {
+      pts = addVibrations(pts, mouthOpenness * f.vib, highSmoothed * f.vib, noisePhase)
+    }
+    f.el.setAttribute('d', pointsToPath(pts))
+  }
+
+  if (linearOpenness > 0.02) {
+    eyeLeftEl.setAttribute('fill', '#e53935')
+    eyeRightEl.setAttribute('fill', '#e53935')
+  } else {
+    eyeLeftEl.removeAttribute('fill')
+    eyeRightEl.removeAttribute('fill')
+  }
+
+  requestAnimationFrame(animate)
+}
+
+micButton.addEventListener('click', () => {
+  micButton.disabled = true
+  micButton.textContent = '⏳ Richiesta in corso...'
+  setupAudio()
+})
+
+initPaths()
+animating = true
+animate()
+</script>
+<a href="../index.html" class="back-btn">←</a>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homepage | In Cucina con Giù</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/" class="logo">In Cucina con Giù</a>
+      <ul class="nav-links">
+        <li><a href="/" class="active">Home</a></li>
+        <li><a href="chi-siamo.html">Chi Siamo</a></li>
+        <li><a href="contatti.html">Contatti</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="home">
+    <section class="hero">
+      <h1>In Cucina con Giù</h1>
+      <p>Ricette semplici e genuine, raccontate con passione.</p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="card-image">
+          <img src="image/Gemini_Generated_Image_ss512dss512dss51.png" alt="Pasta al Pesto" loading="lazy">
+          <button class="info-btn"
+            data-title="Pasta al Pesto"
+            data-time="25 min"
+            data-difficulty="Facile"
+            data-servings="3 persone"
+            data-description="La vera pasta al pesto genovese, semplice e veloce con ingredienti freschi."
+            data-href="ricette/pasta-al-pesto.html"
+            aria-label="Info su Pasta al Pesto">i</button>
+        </div>
+        <div class="card-body">
+          <a href="ricette/pasta-al-pesto.html" class="card-link">
+            <h3>Pasta al Pesto</h3>
+          </a>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 In Cucina con Giù. Tutti i diritti riservati.</p>
+  </footer>
+
+  <!-- Modale -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="modal-close" aria-label="Chiudi">&times;</button>
+      <h2 id="modal-title"></h2>
+      <div class="modal-meta">
+        <span>⏱ <span id="modal-time"></span></span>
+        <span>📋 <span id="modal-difficulty"></span></span>
+        <span>👥 <span id="modal-servings"></span></span>
+      </div>
+      <p id="modal-desc"></p>
+      <a id="modal-link" href="" class="modal-link">Vedi ricetta completa</a>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <a href="../index.html" class="back-btn">←</a>
+</body>
+</html>

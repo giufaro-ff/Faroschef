@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giulia Faro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      padding: 30px;
+    }
+
+    #about {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      font-family: 'Inter', sans-serif;
+      font-size: 20px;
+      font-weight: 500;
+      color: #fff;
+      text-transform: uppercase;
+      z-index: 10;
+    }
+
+    #title {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Alfa Slab One', serif;
+      font-size: clamp(48px, 10vw, 120px);
+      color: #fff;
+      text-align: center;
+      z-index: 1;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    #folders {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 5;
+    }
+
+    .folder {
+      position: absolute;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      user-select: none;
+      will-change: filter, transform;
+    }
+
+    .folder svg {
+      width: 130px;
+      height: 108px;
+      display: block;
+    }
+
+    .folder-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: #fff;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 140px;
+    }
+
+    @media (max-width: 768px) {
+      .folder svg {
+        width: 90px;
+        height: 75px;
+      }
+      .folder-label {
+        font-size: 12px;
+        max-width: 110px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="about">about</div>
+  <div id="title">Giulia Faro</div>
+  <div id="folders"></div>
+  <script>
+    const folders = [
+      { name: 'Ufo game', path: 'marionetta 1/index.html' },
+      { name: 'Maschera sonora', path: 'maschera sonora 1/index.html' },
+      { name: 'Pattern generator', path: 'pattern esercizio 1/index.html' },
+      { name: 'Ricetta', path: 'ricetta pasta al pesto 2 1/index.html' },
+      { name: 'Tipografia cinetica', path: 'tipografia cinetica 1/index.html' },
+    ];
+
+    const folderSvg = `<svg viewBox="0 0 72 60" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="blur">
+          <feGaussianBlur stdDeviation="6"/>
+        </filter>
+        <clipPath id="folderClip">
+          <path d="M8 12C8 10.8954 8.89543 10 10 10H64C65.1046 10 66 10.8954 66 12V52C66 53.1046 65.1046 54 64 54H10C8.89543 54 8 53.1046 8 52V12Z"/>
+        </clipPath>
+        <linearGradient id="g" x1="0" y1="0" x2="0.6" y2="1">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.08"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0.14"/>
+        </linearGradient>
+        <radialGradient id="h1" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%" stop-color="#ff6ec7" stop-opacity="0.75">
+            <animate attributeName="stop-color" values="#ff6ec7;#50ff8a;#50d0ff;#ff6ec7" dur="4s" repeatCount="indefinite"/>
+          </stop>
+          <stop offset="100%" stop-color="#ff6ec7" stop-opacity="0">
+            <animate attributeName="stop-color" values="#ff6ec7;#50ff8a;#50d0ff;#ff6ec7" dur="4s" repeatCount="indefinite"/>
+          </stop>
+        </radialGradient>
+        <radialGradient id="h2" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%" stop-color="#50d0ff" stop-opacity="0.7">
+            <animate attributeName="stop-color" values="#50d0ff;#a050ff;#50ff8a;#50d0ff" dur="4s" repeatCount="indefinite"/>
+          </stop>
+          <stop offset="100%" stop-color="#50d0ff" stop-opacity="0">
+            <animate attributeName="stop-color" values="#50d0ff;#a050ff;#50ff8a;#50d0ff" dur="4s" repeatCount="indefinite"/>
+          </stop>
+        </radialGradient>
+        <radialGradient id="h3" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%" stop-color="#a050ff" stop-opacity="0.7">
+            <animate attributeName="stop-color" values="#a050ff;#50ff8a;#ff6ec7;#a050ff" dur="5s" repeatCount="indefinite"/>
+          </stop>
+          <stop offset="100%" stop-color="#a050ff" stop-opacity="0">
+            <animate attributeName="stop-color" values="#a050ff;#50ff8a;#ff6ec7;#a050ff" dur="5s" repeatCount="indefinite"/>
+          </stop>
+        </radialGradient>
+        <radialGradient id="h4" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%" stop-color="#50ff8a" stop-opacity="0.65">
+            <animate attributeName="stop-color" values="#50ff8a;#ff6ec7;#a050ff;#50ff8a" dur="3.5s" repeatCount="indefinite"/>
+          </stop>
+          <stop offset="100%" stop-color="#50ff8a" stop-opacity="0">
+            <animate attributeName="stop-color" values="#50ff8a;#ff6ec7;#a050ff;#50ff8a" dur="3.5s" repeatCount="indefinite"/>
+          </stop>
+        </radialGradient>
+      </defs>
+      <path d="M8 6C8 4.89543 8.89543 4 10 4H28.3819C28.873 4 29.3282 4.24392 29.5902 4.64636L32.4721 9H64C65.1046 9 66 9.89543 66 11V50C66 51.1046 65.1046 52 64 52H10C8.89543 52 8 51.1046 8 50V6Z" fill="url(#g)" stroke="#ffffff" stroke-opacity="0.2" stroke-width="0.5"/>
+      <path d="M8 12C8 10.8954 8.89543 10 10 10H64C65.1046 10 66 10.8954 66 12V52C66 53.1046 65.1046 54 64 54H10C8.89543 54 8 53.1046 8 52V12Z" fill="url(#g)" stroke="#ffffff" stroke-opacity="0.25" stroke-width="0.5"/>
+      <g filter="url(#blur)" clip-path="url(#folderClip)">
+        <circle cx="22" cy="20" r="30" fill="url(#h1)"/>
+        <circle cx="50" cy="18" r="28" fill="url(#h2)"/>
+        <circle cx="18" cy="42" r="26" fill="url(#h3)"/>
+        <circle cx="54" cy="44" r="26" fill="url(#h4)"/>
+      </g>
+    </svg>`;
+
+    const container = document.getElementById('folders');
+    const titleEl = document.getElementById('title');
+
+    const folderEls = folders.map((f) => {
+      const div = document.createElement('div');
+      div.className = 'folder';
+      div.innerHTML = folderSvg + `<span class="folder-label">${f.name}</span>`;
+      div.addEventListener('click', () => {
+        window.location.href = f.path;
+      });
+      container.appendChild(div);
+      return div;
+    });
+
+    function placeFolders() {
+      const w = window.innerWidth;
+      const tr = titleEl.getBoundingClientRect();
+      const aboveGap = 30;
+      const belowGap = 55;
+      const spacing = 200;
+
+      const aboveY = tr.top - aboveGap - 136;
+      const belowY = tr.bottom + belowGap;
+
+      const fw = 130;
+      const aboveGroupW = fw * 2 + spacing;
+      const belowGroupW = fw * 3 + spacing * 2;
+
+      const aboveLeft = Math.max(30, (w - aboveGroupW) / 2);
+      const belowLeft = Math.max(30, (w - belowGroupW) / 2);
+
+      const positions = [
+        { x: aboveLeft, y: aboveY },
+        { x: belowLeft, y: belowY },
+        { x: Math.min(w - fw - 30, aboveLeft + fw + spacing), y: aboveY },
+        { x: Math.min(w - fw - 30, belowLeft + fw + spacing), y: belowY },
+        { x: Math.min(w - fw - 30, belowLeft + (fw + spacing) * 2), y: belowY },
+      ];
+
+      return positions.map((p) => ({
+        startX: p.x,
+        startY: p.y,
+      }));
+    }
+
+    const positions = placeFolders();
+
+    const dirs = [[-1,-1],[-1,1],[1,-1],[0,1],[1,1]];
+
+    const states = positions.map((p, i) => {
+      const fw=130, fh=136, m=30, vw=innerWidth, vh=innerHeight;
+      const dx=dirs[i][0], dy=dirs[i][1];
+      let ax=Infinity, ay=Infinity;
+      if (dx>0) ax=vw-m-(p.startX+fw);
+      if (dx<0) ax=p.startX-m;
+      if (dy>0) ay=vh-m-(p.startY+fh);
+      if (dy<0) ay=p.startY-m;
+      if (i===3) {
+        const tr=titleEl.getBoundingClientRect();
+        const up = p.startY - (tr.bottom + 5);
+        const down = vh - m - (p.startY + fh);
+        ay = Math.min(up + 20, down);
+      }
+      if (dy < 0 && (i === 0 || i === 2)) {
+        ay = Math.min(ay, p.startY - 60);
+      }
+      if (dx < 0 && i === 0) {
+        ax = Math.min(ax, p.startX - 100);
+      }
+      return { sx:p.startX, sy:p.startY + (i===3 ? 20 : 0), dx, dy, ax:dx===0?0:Math.max(6,ax), ay:Math.max(6,ay), scale:1, offX:0, offY:0 };
+    });
+
+    let hoveredIndex = -1;
+    let frozenX = 0, frozenY = 0;
+
+    folderEls.forEach((el, i) => {
+      el.style.transform = `translate(${states[i].sx}px, ${states[i].sy}px)`;
+      el.addEventListener('mouseenter', () => {
+        if (hoveredIndex === i) return;
+        const t = performance.now() / 1000;
+        const p = Math.sin(t * 0.45) ** 2;
+        const st = states[i];
+        frozenX = st.sx + st.dx * st.ax * p + st.offX;
+        frozenY = st.sy + st.dy * st.ay * p + st.offY;
+        st.offX = 0;
+        st.offY = 0;
+        hoveredIndex = i;
+      });
+      el.addEventListener('mouseleave', () => {
+        if (hoveredIndex !== i) return;
+        const t = performance.now() / 1000;
+        const p = Math.sin(t * 0.45) ** 2;
+        const st = states[i];
+        st.offX = frozenX - (st.sx + st.dx * st.ax * p);
+        st.offY = frozenY - (st.sy + st.dy * st.ay * p);
+        hoveredIndex = -1;
+      });
+    });
+
+    function animate(time) {
+      const t = time / 1000;
+      const p = Math.sin(t * 0.45) ** 2;
+      folderEls.forEach((el, i) => {
+        const st = states[i];
+        const isHovered = i === hoveredIndex;
+        st.scale += ((isHovered ? 1.18 : 1) - st.scale) * 0.12;
+        if (isHovered) {
+          el.style.transform = `translate(${frozenX}px, ${frozenY}px) scale(${st.scale})`;
+        } else {
+          if (Math.abs(st.offX) > 0.1 || Math.abs(st.offY) > 0.1) {
+            st.offX *= 0.95;
+            st.offY *= 0.95;
+          } else {
+            st.offX = 0;
+            st.offY = 0;
+          }
+          const x = st.sx + st.dx * st.ax * p + st.offX;
+          const y = st.sy + st.dy * st.ay * p + st.offY;
+          el.style.transform = `translate(${x}px, ${y}px) scale(${st.scale})`;
+        }
+      });
+      requestAnimationFrame(animate);
+    }
+
+    requestAnimationFrame(animate);
+
+    window.addEventListener('resize', () => {
+      const newPos = placeFolders();
+      const vw=innerWidth, vh=innerHeight;
+      newPos.forEach((p, i) => {
+        const fw=130, fh=136, m=30;
+        const dx=states[i].dx, dy=states[i].dy;
+        states[i].sx = p.startX;
+        states[i].sy = p.startY + (i===3 ? 20 : 0);
+        let ax=Infinity, ay=Infinity;
+        if (dx>0) ax=vw-m-(p.startX+fw);
+        if (dx<0) ax=p.startX-m;
+        if (dy>0) ay=vh-m-(p.startY+fh);
+        if (dy<0) ay=p.startY-m;
+        if (i===3) {
+          const tr=titleEl.getBoundingClientRect();
+          ay=Math.min(p.startY-(tr.bottom+5), vh-m-(p.startY+fh));
+        }
+        if (dy < 0 && (i === 0 || i === 2)) {
+          ay = Math.min(ay, p.startY - 60);
+        }
+        if (dx < 0 && i === 0) {
+        ax = Math.min(ax, p.startX - 100);
+        }
+        states[i].ax = dx===0?0:Math.max(6,ax);
+        states[i].ay = Math.max(6, ay + (i===3 ? 20 : 0));
+      });
+    });
+  </script>
+</body>
+</html>

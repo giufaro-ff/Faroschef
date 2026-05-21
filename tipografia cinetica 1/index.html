@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sigaretta — Combustione Tipografica</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #000;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    #canvas-container {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #canvas {
+      display: block;
+    }
+    #sidebar {
+      width: 260px;
+      background: #111;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      border-left: 1px solid #222;
+    }
+    #sidebar label {
+      color: #ccc;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    #sidebar input[type="range"] {
+      width: 100%;
+      background: #333;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      border-radius: 2px;
+      outline: none;
+    }
+    #sidebar input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+    }
+    #sidebar input[type="color"] {
+      width: 100%;
+      height: 32px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    #play-btn, #puff-btn {
+      padding: 12px;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    #play-btn {
+      background: #fff;
+    }
+    #play-btn:hover {
+      background: #ddd;
+    }
+    #puff-btn {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #CC7722;
+      color: #fff;
+    }
+    #puff-btn:hover {
+      background: #B8661A;
+    }
+    #sidebar .value {
+      color: #888;
+      font-size: 11px;
+      text-align: right;
+    }
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 9999;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 22px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .back-btn:hover {
+      background: rgba(255,255,255,0.25);
+      transform: scale(1.12);
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-container">
+    <canvas id="canvas"></canvas>
+    <button id="puff-btn">FUMA</button>
+  </div>
+  <div id="sidebar">
+    <label>
+      Font Size (px)
+      <input type="range" id="font-size" min="40" max="300" value="120">
+      <span class="value" id="font-size-val">120</span>
+    </label>
+    <label>
+      Stroke
+      <input type="range" id="stroke" min="0" max="20" value="2" step="0.5">
+      <span class="value" id="stroke-val">2</span>
+    </label>
+    <label>
+      Colore Testo
+      <input type="color" id="text-color" value="#ffffff">
+    </label>
+    <label>
+      Colore Fumo
+      <input type="color" id="smoke-color" value="#888888">
+    </label>
+    <label>
+      Colore Cenere
+      <input type="color" id="ash-color" value="#444444">
+    </label>
+    <label>
+      Colore Sfondo
+      <input type="color" id="bg-color" value="#000000">
+    </label>
+    <label>
+      Blur Fumo
+      <input type="range" id="blur" min="0" max="12" value="6" step="0.5">
+      <span class="value" id="blur-val">6</span>
+    </label>
+    <label>
+      Opacità Fumo
+      <input type="range" id="opacity" min="0" max="100" value="3">
+      <span class="value" id="opacity-val">3</span>
+    </label>
+    <label>
+      Velocità
+      <input type="range" id="speed" min="1" max="20" value="1">
+      <span class="value" id="speed-val">1</span>
+    </label>
+    <button id="play-btn">▶ START</button>
+  </div>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const offCanvas = document.createElement('canvas');
+    const offCtx = offCanvas.getContext('2d');
+
+    let W, H;
+    let particles = [];
+    let combustionFront = 0;
+    let puffIndex = 9;
+    let burnLetter = null;
+    let dissolveFront = 1;
+    let letterMinX = [];
+    let letterMaxX = [];
+    let isPlaying = false;
+    let isComplete = false;
+    let animationId = null;
+
+    const WORD = 'sigarettaa';
+    const FONT_FAMILY = 'Arial, "Helvetica Neue", sans-serif';
+
+    function getConfig() {
+      return {
+        fontSize: parseInt(document.getElementById('font-size').value),
+        stroke: parseFloat(document.getElementById('stroke').value),
+        textColor: document.getElementById('text-color').value,
+        smokeColor: document.getElementById('smoke-color').value,
+        ashColor: document.getElementById('ash-color').value,
+        bgColor: document.getElementById('bg-color').value,
+        blur: parseFloat(document.getElementById('blur').value),
+        smokeOpacity: parseInt(document.getElementById('opacity').value) / 100,
+        speed: parseInt(document.getElementById('speed').value),
+      };
+    }
+
+    function positionPuffBtn() {
+      const fontSize = parseInt(document.getElementById('font-size').value);
+      const btn = document.getElementById('puff-btn');
+      const wordBottom = H / 2 + fontSize / 2;
+      btn.style.top = (wordBottom + 20) + 'px';
+    }
+
+    function resizeCanvas() {
+      const container = document.getElementById('canvas-container');
+      W = container.clientWidth;
+      H = container.clientHeight;
+      canvas.width = W;
+      canvas.height = H;
+      ctx.imageSmoothingEnabled = false;
+      positionPuffBtn();
+    }
+
+    function rasterizeText() {
+      const config = getConfig();
+      const maxDim = Math.max(W, H);
+
+      offCanvas.width = maxDim;
+      offCanvas.height = maxDim;
+
+      offCtx.clearRect(0, 0, maxDim, maxDim);
+
+      offCtx.save();
+      offCtx.textAlign = 'center';
+      offCtx.textBaseline = 'middle';
+      offCtx.font = `${config.fontSize}px ${FONT_FAMILY}`;
+      offCtx.fillStyle = '#fff';
+      offCtx.translate(maxDim / 2, maxDim / 2);
+      if (config.stroke > 0) {
+        offCtx.lineWidth = config.stroke;
+        offCtx.strokeStyle = '#fff';
+        offCtx.strokeText(WORD, 0, 0);
+      }
+      offCtx.fillText(WORD, 0, 0);
+      const totalWidth = offCtx.measureText(WORD).width;
+
+      const letterBounds = [];
+      for (let i = 1; i <= WORD.length; i++) {
+        const w = offCtx.measureText(WORD.substring(0, i)).width;
+        letterBounds.push(W / 2 - totalWidth / 2 + w);
+      }
+
+      const imageData = offCtx.getImageData(0, 0, maxDim, maxDim);
+      const data = imageData.data;
+
+      particles = [];
+      letterMinX = new Array(WORD.length).fill(Infinity);
+      letterMaxX = new Array(WORD.length).fill(-Infinity);
+
+      for (let x = maxDim - 1; x >= 0; x--) {
+        for (let y = 0; y < maxDim; y++) {
+          const idx = (y * maxDim + x) * 4;
+          const alpha = data[idx + 3];
+          if (alpha > 128) {
+            const px = x - (maxDim - W) / 2;
+            const py = y - (maxDim - H) / 2;
+
+            let letterIndex = 0;
+            for (let i = 0; i < letterBounds.length; i++) {
+              if (px >= letterBounds[i]) letterIndex = i + 1;
+            }
+
+            letterMinX[letterIndex] = Math.min(letterMinX[letterIndex], px);
+            letterMaxX[letterIndex] = Math.max(letterMaxX[letterIndex], px);
+
+            particles.push({
+              x: px,
+              y: py,
+              ppx: px,
+              ppy: py,
+              vx: 0,
+              vy: 0,
+              size: config.stroke > 0 ? config.stroke + 0.5 : 1.5,
+              opacity: 1,
+              state: 'TEXT',
+              age: 0,
+              color: '#ffffff',
+              phase: 0,
+              letterIndex,
+              isFilter: letterIndex < 4,
+            });
+          }
+        }
+      }
+    }
+
+    const FILTER_COLOR = '#CC7722';
+
+    function drawInitial() {
+      const config = getConfig();
+      ctx.fillStyle = config.bgColor;
+      ctx.fillRect(0, 0, W, H);
+      particles.forEach(p => {
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = p.isFilter ? FILTER_COLOR : config.textColor;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    const STATE_TEXT = 'TEXT';
+    const STATE_EMBER = 'EMBER';
+    const STATE_SMOKE = 'SMOKE';
+    const STATE_ASH = 'ASH';
+    const STATE_GONE = 'GONE';
+
+    const SMOKE_DURATION = 300;
+    const ASH_DURATION = 60;
+    const time = { t: 0 };
+
+    function lerpColor(p, fromHex, toHex, t) {
+      t = Math.max(0, Math.min(1, t));
+      const fr = parseInt(fromHex.slice(1,3), 16);
+      const fg = parseInt(fromHex.slice(3,5), 16);
+      const fb = parseInt(fromHex.slice(5,7), 16);
+      const tr = parseInt(toHex.slice(1,3), 16);
+      const tg = parseInt(toHex.slice(3,5), 16);
+      const tb = parseInt(toHex.slice(5,7), 16);
+      const r = Math.round(fr + (tr - fr) * t);
+      const g = Math.round(fg + (tg - fg) * t);
+      const b = Math.round(fb + (tb - fb) * t);
+      p.color = `rgb(${r},${g},${b})`;
+    }
+
+    function updateParticles(config, puff, dt) {
+      time.t += dt * 0.01;
+
+      if (burnLetter !== null) {
+        dissolveFront = Math.min(1, dissolveFront + 0.02 * dt);
+      }
+
+      particles.forEach((p) => {
+        if (p.state === STATE_TEXT && !p.isFilter && p.letterIndex === burnLetter) {
+          const leftX = letterMinX[p.letterIndex];
+          const rightX = letterMaxX[p.letterIndex];
+          const xRatio = rightX > leftX ? (p.x - leftX) / (rightX - leftX) : 1;
+          if (xRatio < 1 - dissolveFront) return;
+
+          p.state = STATE_EMBER;
+          p.age = 0;
+          p.ppx = p.x;
+          p.ppy = p.y;
+          p.color = '#FF6600';
+        }
+
+        if (p.state !== STATE_TEXT) {
+          p.ppx = p.x;
+          p.ppy = p.y;
+        }
+
+        p.age++;
+
+        if (p.state === STATE_EMBER) {
+          if (p.age >= 6) {
+            p.state = STATE_SMOKE;
+            p.age = 0;
+            p.vx = Math.random() * 0.4 + 0.1;
+            p.vy = -(Math.random() * 1 + 0.5);
+            p.size = Math.max(1.5, p.size);
+            p.phase = Math.random() * Math.PI * 2;
+            p.opacity = 1;
+          }
+        } else if (p.state === STATE_SMOKE) {
+          const t = p.age / SMOKE_DURATION;
+          const wave = Math.sin(time.t * 2 + p.phase) * 0.3 + Math.sin(time.t * 1.3 + p.phase * 1.7) * 0.2;
+          p.vx += wave * 0.01 + (Math.random() - 0.5) * 0.02 + 0.006;
+          p.vy += (Math.random() - 0.5) * 0.01 - 0.005 - t * 0.01;
+          p.vx = Math.min(1.5, p.vx);
+          p.x += p.vx;
+          p.y += p.vy;
+          p.size += 0.025;
+          p.opacity = Math.max(0, Math.sin(t * Math.PI) * 0.8);
+          lerpColor(p, config.textColor, config.smokeColor, Math.min(1, t * 2));
+
+          if (p.age >= SMOKE_DURATION) {
+            if (Math.random() < 0.15) {
+              p.state = STATE_ASH;
+              p.age = 0;
+              p.vy = Math.random() * 0.2 + 0.05;
+              p.vx = (Math.random() - 0.5) * 0.1;
+              p.size = Math.max(0.5, p.size * 0.15);
+              p.phase = Math.random();
+            } else {
+              p.state = STATE_GONE;
+            }
+          }
+        } else if (p.state === STATE_ASH) {
+          const t = p.age / ASH_DURATION;
+          p.vy += 0.004;
+          p.vx += (Math.random() - 0.5) * 0.005;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.size = Math.max(0.3, p.size - 0.002);
+          lerpColor(p, config.smokeColor, config.ashColor, Math.min(1, t * 2));
+
+          if (p.y + p.size >= H) {
+            p.y = H - p.size;
+            p.vy = 0;
+            p.vx = 0;
+            p.opacity = Math.max(0.4, 0.8 - (p.age - ASH_DURATION) * 0.002);
+          } else {
+            p.opacity = Math.max(0.3, 1 - t * 0.6);
+          }
+
+          if ((p.age >= ASH_DURATION + 300 && p.y >= H - p.size - 1) || p.opacity <= 0.01) {
+            if (p.y < H - p.size) p.state = STATE_GONE;
+          }
+        }
+      });
+
+      if (burnLetter !== null && dissolveFront >= 1) {
+        burnLetter = null;
+      }
+    }
+
+    function render(config) {
+      ctx.fillStyle = config.bgColor;
+      ctx.fillRect(0, 0, W, H);
+
+      particles.forEach(p => {
+        if (p.state !== STATE_TEXT) return;
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = p.isFilter ? FILTER_COLOR : config.textColor;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+      });
+
+      particles.forEach(p => {
+        if (p.state !== STATE_EMBER) return;
+        const t = p.age / 6;
+        ctx.globalAlpha = 1 - t * 0.3;
+        ctx.fillStyle = `rgb(255, ${Math.round(120 - t * 80)}, 0)`;
+        ctx.fillRect(p.x, p.y, p.size + 1, p.size + 1);
+      });
+
+      if (config.blur > 0) ctx.filter = `blur(${config.blur}px)`;
+      ctx.lineCap = 'round';
+      particles.forEach(p => {
+        if (p.state !== STATE_SMOKE) return;
+        ctx.globalAlpha = p.opacity * config.smokeOpacity;
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth = p.size * 3;
+        ctx.beginPath();
+        ctx.moveTo(p.ppx, p.ppy);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+      });
+
+      ctx.filter = 'none';
+      ctx.lineCap = 'butt';
+      particles.forEach(p => {
+        if (p.state !== STATE_ASH) return;
+        ctx.globalAlpha = p.opacity;
+        ctx.fillStyle = p.color;
+        const grain = p.phase !== undefined ? p.phase * 0.6 : 0.3;
+        ctx.fillRect(p.x, p.y, Math.max(0.5, p.size + grain), Math.max(0.5, p.size - grain * 0.3));
+        ctx.fillRect(p.x + grain * 0.5, p.y - grain * 0.3, Math.max(0.3, p.size * 0.5), Math.max(0.3, p.size * 0.5));
+      });
+
+      ctx.globalAlpha = 1;
+    }
+
+    let lastTime = 0;
+
+    function animate(timestamp) {
+      const dt = lastTime ? (timestamp - lastTime) / 16.67 : 1;
+      lastTime = timestamp;
+
+      if (isPlaying && !isComplete) {
+        const config = getConfig();
+        updateParticles(config, puffIndex, dt);
+        render(config);
+      } else if (isComplete) {
+        render(getConfig());
+        isPlaying = false;
+        document.getElementById('play-btn').textContent = '⟳ RESET';
+        return;
+      }
+
+      animationId = requestAnimationFrame(animate);
+    }
+
+    document.getElementById('play-btn').addEventListener('click', () => {
+      if (isComplete || puffIndex < 4) {
+        resetAnimation();
+      } else {
+        isPlaying = !isPlaying;
+        document.getElementById('play-btn').textContent = isPlaying ? '⏸ PAUSE' : '▶ START';
+      }
+    });
+
+    document.getElementById('puff-btn').addEventListener('click', () => {
+      if (isComplete || puffIndex < 4) return;
+      burnLetter = puffIndex;
+      dissolveFront = 0;
+      puffIndex--;
+      if (!isPlaying) {
+        isPlaying = true;
+        document.getElementById('play-btn').textContent = '⏸ PAUSE';
+      }
+    });
+
+    function resetAnimation() {
+      isComplete = false;
+      isPlaying = false;
+      puffIndex = 9;
+      burnLetter = null;
+      dissolveFront = 1;
+      combustionFront = 0;
+      lastTime = 0;
+      document.getElementById('play-btn').textContent = '▶ START';
+      rasterizeText();
+      drawInitial();
+      if (animationId) cancelAnimationFrame(animationId);
+      animate(0);
+    }
+
+    document.getElementById('font-size').addEventListener('input', function() {
+      document.getElementById('font-size-val').textContent = this.value;
+      positionPuffBtn();
+      if (!isPlaying && !isComplete) {
+        rasterizeText();
+        drawInitial();
+      }
+    });
+
+    document.getElementById('stroke').addEventListener('input', function() {
+      document.getElementById('stroke-val').textContent = this.value;
+      if (!isPlaying && !isComplete) {
+        rasterizeText();
+        drawInitial();
+      }
+    });
+
+    document.getElementById('text-color').addEventListener('input', function() {
+      if (!isPlaying && !isComplete) {
+        rasterizeText();
+        drawInitial();
+      }
+    });
+
+    document.getElementById('blur').addEventListener('input', function() {
+      document.getElementById('blur-val').textContent = this.value;
+    });
+    document.getElementById('opacity').addEventListener('input', function() {
+      document.getElementById('opacity-val').textContent = this.value;
+    });
+    document.getElementById('speed').addEventListener('input', function() {
+      document.getElementById('speed-val').textContent = this.value;
+    });
+    document.getElementById('smoke-color').addEventListener('input', () => {});
+    document.getElementById('ash-color').addEventListener('input', () => {});
+    document.getElementById('bg-color').addEventListener('input', function() {
+      if (!isPlaying && !isComplete) {
+        drawInitial();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      rasterizeText();
+      drawInitial();
+    });
+
+    resizeCanvas();
+    rasterizeText();
+    drawInitial();
+    animate(0);
+  </script>
+  <a href="../index.html" class="back-btn">←</a>
+</body>
+</html>
