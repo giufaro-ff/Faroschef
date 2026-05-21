@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pattern Generator</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:system-ui,sans-serif; background:#1a1a1a; color:#eee; overflow:hidden; height:100vh; }
+    #app { display:flex; flex-direction:row; height:100vh; }
+    #canvas { flex:1; display:block; min-width:0; min-height:0; }
+    #controls { width:280px; flex-shrink:0; background:#334; padding:16px; overflow-y:auto; border-left:2px solid #6af; }
+    fieldset { border:1px solid #444; border-radius:6px; padding:12px; margin-bottom:12px; }
+    legend { padding:0 6px; font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:.05em; }
+    label { display:block; font-size:0.8rem; margin-bottom:8px; }
+    label input[type="range"] { width:100%; margin-top:6px; cursor:pointer; accent-color:#6af; }
+    label input[type="color"] { display:block; margin-top:2px; border:none; background:none; width:100%; height:30px; cursor:pointer; }
+    hr { border:none; border-top:1px solid #333; margin:8px 0; }
+    button { width:100%; padding:8px; background:#3a3a3a; color:#eee; border:1px solid #555; border-radius:4px; cursor:pointer; font-size:0.85rem; }
+    button:hover { background:#4a4a4a; }
+    #selectedModuleControls { border-color:#6af; }
+    #selectedModuleControls p { color:#6af; }
+    .attractor-item { display:flex; gap:6px; align-items:center; margin-top:8px; font-size:0.8rem; }
+    .attractor-item input[type="number"] { width:60px; padding:3px; background:#333; color:#eee; border:1px solid #555; border-radius:3px; }
+    .attractor-item button { width:auto; padding:3px 8px; background:#502; border-color:#a33; }
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 9999;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.3);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 12px;
+      color: #1a1a1a;
+      font-size: 22px;
+      text-decoration: none;
+    }
+    .back-btn:hover {
+      background: rgba(255,255,255,0.5);
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <canvas id="canvas"></canvas>
+    <aside id="controls">
+      <fieldset>
+        <legend>Modulo</legend>
+        <label>Rotazione <input type="range" id="rotation" min="0" max="360" value="0"></label>
+        <label><input type="checkbox" id="snap90"> Aggancia a 90°</label>
+        <label><input type="checkbox" id="tilingMode"> Pattern continuo (tiling)</label>
+        <label><input type="checkbox" id="alternateRotation"> Alterna rotazione (scacchiera)</label>
+        <hr>
+        <label><input type="checkbox" id="randomRotation"> Rotazione random</label>
+        <label>Velocità max <input type="range" id="randomSpeed" min="0.1" max="10" step="0.1" value="2"></label>
+        <hr>
+        <label><input type="checkbox" id="randomStroke"> Random spessore</label>
+        <label>Variazione max <input type="range" id="maxStrokeVar" min="0.5" max="15" step="0.5" value="4"></label>
+        <label>Scala <input type="range" id="scale" min="0.1" max="3" step="0.01" value="1"></label>
+        <label>Offset X <input type="range" id="offsetX" min="-100" max="100" value="0"></label>
+        <label>Offset Y <input type="range" id="offsetY" min="-100" max="100" value="0"></label>
+        <hr>
+        <label>Arco 1 colore <input type="color" id="color1" value="#000000"></label>
+        <label>Arco 1 spessore <input type="range" id="stroke1" min="0.5" max="20" step="0.5" value="2"></label>
+        <label>Arco 2 colore <input type="color" id="color2" value="#000000"></label>
+        <label>Arco 2 spessore <input type="range" id="stroke2" min="0.5" max="20" step="0.5" value="2"></label>
+        <label>Arco 3 colore <input type="color" id="color3" value="#000000"></label>
+        <label>Arco 3 spessore <input type="range" id="stroke3" min="0.5" max="20" step="0.5" value="2"></label>
+      </fieldset>
+      <fieldset>
+        <legend>Griglia</legend>
+        <label>Sfondo <input type="color" id="bgColor" value="#ffffff"></label>
+        <label>Righe <input type="range" id="rows" min="1" max="20" value="6"></label>
+        <label>Colonne <input type="range" id="cols" min="1" max="20" value="8"></label>
+        <label>Modulo (px) <input type="range" id="moduleSize" min="20" max="200" value="80"></label>
+        <label>Gutter <input type="range" id="gutter" min="0" max="50" value="10"></label>
+      </fieldset>
+      <fieldset id="selectedModuleControls" style="display:none">
+        <legend>Modulo selezionato</legend>
+        <p id="selectedModuleLabel" style="font-size:0.8rem;margin-bottom:6px;"></p>
+        <label>Rotazione individuale <input type="range" id="perModuleRotation" min="0" max="360" value="0"></label>
+      </fieldset>
+      <fieldset>
+        <legend>Attrattori</legend>
+        <button id="addAttractor">+ Aggiungi attrattore</button>
+        <div id="attractorList"></div>
+      </fieldset>
+    </aside>
+  </div>
+  <script src="module.js"></script>
+  <script src="grid.js"></script>
+  <script src="controls.js"></script>
+  <script src="script.js"></script>
+  <a href="../index.html" class="back-btn">←</a>
+</body>
+</html>
