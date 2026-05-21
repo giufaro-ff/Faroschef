@@ -1,7 +1,7 @@
 class Controls {
   constructor() {
     this.state = {
-      bgColor: '#ffffff',
+      bgColor: '#000000',
       rotation: 0,
       snap90: false,
       tilingMode: false,
@@ -14,9 +14,9 @@ class Controls {
       offsetX: 0,
       offsetY: 0,
       arcs: [
-        { color: '#000000', strokeWidth: 2 },
-        { color: '#000000', strokeWidth: 2 },
-        { color: '#000000', strokeWidth: 2 },
+        { color: '#ffffff', strokeWidth: 2 },
+        { color: '#ffffff', strokeWidth: 2 },
+        { color: '#ffffff', strokeWidth: 2 },
       ],
       selectedIndex: -1,
       perModuleRotations: [],
