@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — Giulia Faro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      width: 100vw;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 30px;
+    }
+
+    #back {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      font-family: 'Inter', sans-serif;
+      font-size: 20px;
+      font-weight: 500;
+      color: #fff;
+      text-transform: uppercase;
+      z-index: 10;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    #back:hover {
+      opacity: 0.6;
+    }
+
+    #content {
+      max-width: 640px;
+      text-align: left;
+      line-height: 1.7;
+    }
+
+    #content p {
+      margin-bottom: 1em;
+      font-size: 18px;
+    }
+
+    #content .courses {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5em 0;
+    }
+
+    #content .courses li {
+      margin-bottom: 0.6em;
+      font-size: 18px;
+    }
+
+    #content .courses li::before {
+      content: "— ";
+    }
+
+    #content .school {
+      margin-top: 2em;
+      font-size: 16px;
+      opacity: 0.7;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <a id="back" href="index.html">← back</a>
+  <div id="content">
+    <p>Sito sviluppato durante il workshop &ldquo;No brain, No Gain&rdquo;,<br>
+    tenuto da whateverDev (Andrea Maffei &amp; Rocco Lorenzo Modugno),<br>
+    18–22 Maggio 2026, all'interno dei corsi:</p>
+
+    <ul class="courses">
+      <li><strong>Interaction Design 2</strong><br>Prof. Alessia Scudieri</li>
+      <li><strong>Interaction Design 3</strong><br>Prof. Andrea Leonardi &amp; Prof. Marcantonio D'Antoni</li>
+    </ul>
+
+    <div class="school">
+      <strong>ABADIR</strong><br>
+      Accademia di Design e Comunicazione Visiva<br>
+      Sant'Agata li Battiati CT<br>
+      AA 2025–26
+    </div>
+  </div>
+</body>
+</html>
